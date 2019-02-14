@@ -1,4 +1,11 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Projeto de dApp de um contrato inteligente de Bolao.
+
+Smart Contract em Solidity (0.5.4)
+Rede de Teste Ethereum: Ropsten
+
+Framework de Desenvolvimento: React (16.8.1)
+UI: Semantic UI React (0.85.0)
+Web3 versão 1.0.0-beta.46
 
 ## Available Scripts
 
