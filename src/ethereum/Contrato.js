@@ -1,5 +1,5 @@
 import web3 from './web3';
-import Bolao from './build/Bolao.json';
+import Bolao from './contracts/build/Bolao.json';
 
 const file = require("ADDRESS");
 const ADDRESS = this.readTextFile(file);
