@@ -5,9 +5,7 @@ import {
   Grid,
   Input,
   Button,
-  Icon,
-  Dimmer,
-  Loader
+  Icon
 } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
@@ -18,13 +16,32 @@ class ValorAposta extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      valorAposta: this.props.valorAposta,
+      valorAposta: '0',
       gasPrice: this.props.gasPrice,
+      gerente: false,
       loading: false
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    //console.log(prevProps.valorAposta+" "+this.props.valorAposta);
+    if (prevProps.valorAposta !== this.props.valorAposta) {
+      this.setState({valorAposta: this.props.valorAposta});
+      //console.log("foi");
+      this.render();
     }
   }
 
   async componentDidMount() {
+    web3.eth.getAccounts((err, accounts) => {
+      bolao.methods.getGerente().call({from: accounts[0]})
+      .then((result) => {
+        if (accounts[0] === result){
+          this.setState({gerente: true});
+        }
+      });
+    });
+
     /*this.setState({valorAposta: this.props.valorAposta,
     gasPrice: this.props.gasPrice});*/
   }
@@ -41,7 +58,7 @@ class ValorAposta extends Component {
     var that = this;
     web3.eth.getAccounts((err, accounts) => {
       this.setState({loading: true});
-      bolao.methods.setValorAposta(that.state.valorAposta).send({
+      bolao.methods.setValorAposta(web3.utils.toWei(that.state.valorAposta, 'ether')).send({
         from: accounts[0],
         gasPrice: that.state.gasPrice })
       .once('transactionHash', function(hash){ console.log("1: "+hash); })
@@ -60,29 +77,34 @@ class ValorAposta extends Component {
     });
   }
 
-  render() {
+  button() {
+    if (this.state.loading) {
+      return (<Button primary loading onClick = {this.onSubmitValorAposta}> Atualizar</Button>);
+    }
+    else {
+      return (<Button primary onClick = {this.onSubmitValorAposta}> Atualizar</Button>);
+    }
+  }
 
+  render() {
     return (<Container>
       <Header as='h3' block>
         <Icon name='money bill alternate outline' />
         <Header.Content>Valor da Aposta</Header.Content>
       </Header>
 
-      <Grid columns='equal' stackable padded>
-        <Grid.Column><Input
-        label='ETH'
-        labelPosition='right'
-        defaultValue={this.state.valorAposta}
-        onChange={this.onValorApostaChanged} />
-        </Grid.Column>
-        <Grid.Column>
-        {this.state.loading ?
-          (<Button primary loading onClick = {this.onSubmitValorAposta}> Atualizar</Button>)
-          :
-          (<Button primary onClick = {this.onSubmitValorAposta}> Atualizar</Button>)
-        }
-        </Grid.Column>
-      </Grid>
+        {this.state.gerente ?
+          (<Grid columns='equal' stackable padded>
+            <Grid.Column>
+            <Input
+              label='ETH'
+              labelPosition='right'
+              defaultValue={this.state.valorAposta}
+              onChange={this.onValorApostaChanged} />
+          </Grid.Column>
+          <Grid.Column>{this.button()}</Grid.Column>
+          </Grid>
+        ) : ( <div>{this.state.valorAposta} ETH</div>)}
      </Container>);
   }
 }
