@@ -10,7 +10,30 @@ import 'semantic-ui-css/semantic.min.css';
 //import logo from './logo.svg';
 import './App.css';
 
+import web3 from './ethereum/web3';
+
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      valorAposta: 0,
+      gasPrice: 100000000000
+    }
+
+    this.onValorApostaChanged = this.onValorApostaChanged.bind(this)
+  }
+
+  onValorApostaChanged() {
+    /*this.setState({
+      valorAposta: pValorAposta
+    })*/
+    console.log(this.state.valorAposta);
+    console.log("voltou");
+  }
+
+  async componentDidMount() {
+  }
+
   render() {
     return (
       <div className="App">
@@ -20,7 +43,7 @@ class App extends Component {
         <Grid.Row stretched>
           <Grid.Column></Grid.Column>
           <Grid.Column></Grid.Column>
-          <Grid.Column><ValorAposta /></Grid.Column>
+          <Grid.Column><ValorAposta gasPrice={this.state.gasPrice} onValorApostaChanged = {this.onValorApostaChanged} valorAposta = {this.state.valorAposta} /></Grid.Column>
         </Grid.Row>
         </Grid>
       </div>
