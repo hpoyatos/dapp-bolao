@@ -12,33 +12,35 @@ import 'semantic-ui-css/semantic.min.css';
 import bolao from '../ethereum/Contrato';
 import web3 from '../ethereum/web3';
 
-class ValorAposta extends Component {
+class Apostar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      valorAposta: '0',
       gasPrice: this.props.gasPrice,
-      gerente: false,
-      loading: false
+      jaApostou: false,
+      loading: false,
+      nome: '',
+      liberado: false
     };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-
   }
 
   async componentDidMount() {
     web3.eth.getAccounts((err, accounts) => {
-      bolao.methods.getValorAposta().call({from: accounts[0]})
+      if (accounts[0] !== undefined)
+      {
+        this.setState({liberado: true});
+      }
+
+      bolao.methods.getJogadorPorId(accounts[0]).call({from: accounts[0]})
       .then((result) => {
-        this.setState({valorAposta: web3.utils.fromWei(result, 'ether')});
+        if (accounts[0] === result[1]){
+          this.setState({jaApostou: true, nome: result[0]});
+        }
       });
 
-      bolao.methods.getGerente().call({from: accounts[0]})
+      bolao.methods.getValorAposta().call({from: accounts[0]})
       .then((result) => {
-        if (accounts[0] === result){
-          this.setState({gerente: true});
-        }
+        this.setState({valorAposta: result});
       });
     });
 
@@ -49,22 +51,23 @@ class ValorAposta extends Component {
   //componentDidCatch(error, info) {
   //}
 
-  onValorApostaChanged = e => {
-    this.setState({valorAposta: e.target.value});
+  onNomeChanged = e => {
+    this.setState({nome: e.target.value});
   }
 
-  onSubmitValorAposta = async event => {
+  onSubmitAposta = async event => {
     event.preventDefault();
     var that = this;
     web3.eth.getAccounts((err, accounts) => {
       this.setState({loading: true});
-      bolao.methods.setValorAposta(web3.utils.toWei(that.state.valorAposta, 'ether')).send({
+      bolao.methods.entrar(that.state.nome).send({
         from: accounts[0],
+        value: that.state.valorAposta,
         gasPrice: that.state.gasPrice })
       .once('transactionHash', function(hash){ console.log("1: "+hash); })
       .once('confirmation', function(confNumber, receipt){
-        that.setState({loading: false});
-        that.props.onValorApostaChanged();
+        that.setState({loading: false, jaApostou: true});
+        //that.props.onApostaChanged();
       })
       //.once('receipt', function(receipt){  })
       .on('error', function(error){
@@ -78,34 +81,38 @@ class ValorAposta extends Component {
   }
 
   button() {
-    if (this.state.loading) {
-      return (<Button primary loading onClick = {this.onSubmitValorAposta}> Atualizar</Button>);
+    if (this.state.liberado)
+    {
+      if (this.state.loading) {
+        return (<Button primary loading onClick = {this.onSubmitAposta}> Apostar</Button>);
+      }
+      else {
+        return (<Button primary onClick = {this.onSubmitAposta}> Apostar</Button>);
+      }
     }
     else {
-      return (<Button primary onClick = {this.onSubmitValorAposta}> Atualizar</Button>);
+      return (<Button disabled> Sem carteira</Button>);
     }
+
   }
 
   render() {
     return (<Container>
       <Header as='h3' block>
-        <Icon name='money bill alternate outline' />
-        <Header.Content>Valor da Aposta</Header.Content>
+        <Icon name='dollar sign' />
+        <Header.Content>Faça sua aposta!</Header.Content>
       </Header>
 
-        {this.state.gerente ?
+        {!this.state.jaApostou ?
           (<Grid columns='equal' stackable padded>
             <Grid.Column>
             <Input
-              label='ETH'
-              labelPosition='right'
-              defaultValue={this.state.valorAposta}
-              onChange={this.onValorApostaChanged} />
+              onChange={this.onNomeChanged} />
           </Grid.Column>
           <Grid.Column>{this.button()}</Grid.Column>
           </Grid>
-        ) : ( <div>{this.state.valorAposta} ETH</div>)}
+        ) : ( <Grid columns='equal' stackable padded><Grid.Column>{this.state.nome}</Grid.Column><Grid.Column>{this.button()}</Grid.Column></Grid>)}
      </Container>);
   }
 }
-export default ValorAposta;
+export default Apostar;

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import MenuApp from './components/MenuApp';
 import ValorAposta from './components/ValorAposta';
+import Apostar from './components/Apostar';
+import Ganhador from './components/Ganhador';
 
 import {
   Grid,
@@ -49,7 +51,7 @@ class App extends Component {
         this.setState({valorAposta: web3.utils.fromWei(result, 'ether')});
         //console.log("primeiro: "+this.state.valorAposta)
       });
-/*
+
       bolao.methods.getNumAposta().call({from: accounts[0]})
       .then((result) => {
         this.setState({numApostas: result});
@@ -59,8 +61,6 @@ class App extends Component {
       .then((result) => {
         this.setState({premio: result});
       });
-*/
-
 
     });
   }
@@ -75,7 +75,7 @@ class App extends Component {
           <Grid.Column>
               <Container>
                 <Header as='h3' block>
-                  <Icon name='money bill alternate outline' />
+                  <Icon name='file alternate' />
                   <Header.Content>Número do Contrato (Ropsten)</Header.Content>
                 </Header>
                 <div>{bolao.options.address}</div>
@@ -96,10 +96,14 @@ class App extends Component {
                 <Icon name='gift' />
                 <Header.Content>Prêmio</Header.Content>
               </Header>
-              <div>{web3.utils.fromWei(this.state.premio, 'ether')}</div>
+              <div>{web3.utils.fromWei(this.state.premio, 'ether')} ETH</div>
             </Container>
           </Grid.Column>
-          <Grid.Column><ValorAposta gasPrice={this.state.gasPrice} onValorApostaChanged={this.onValorApostaChanged} valorAposta={this.state.valorAposta} /></Grid.Column>
+          <Grid.Column><ValorAposta gasPrice={this.state.gasPrice} onValorApostaChanged={this.onValorApostaChanged} /></Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column><Apostar gasPrice={this.state.gasPrice} /></Grid.Column>
+          <Grid.Column><Ganhador gasPrice={this.state.gasPrice} /></Grid.Column>
         </Grid.Row>
         </Grid>
       </div>
