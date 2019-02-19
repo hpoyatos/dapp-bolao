@@ -24,9 +24,13 @@ contract Bolao {
         uint256 premio
     );
 
+    event ValorApostaEvent(
+        uint256 valorAposta
+    );
+
     mapping(address => Jogador) public jogadoresInfo;
     address private gerente;
-    address[] public jogadores;
+    address[] private jogadores;
     address[] private apostas;
     uint256 private premio;
     uint256 private numApostas;
@@ -59,6 +63,7 @@ contract Bolao {
 
    function setValorAposta(uint _valorAposta) public restricted {
      valorAposta = _valorAposta;
+     emit ValorApostaEvent(valorAposta);
    }
 
    function escolherGanhador() public restricted {
@@ -66,7 +71,7 @@ contract Bolao {
         vencedor = address(uint160(address(apostas[index])));
         vencedor.transfer(address(this).balance);
 
-        if (jogadoresInfo[apostas[index]].isValue == true)
+      if (jogadoresInfo[apostas[index]].isValue == true)
 	    {
             emit FimDeJogoEvent(apostas[index], jogadoresInfo[apostas[index]].nome, premio);
 	    }
@@ -90,11 +95,7 @@ contract Bolao {
        return numApostas;
     }
 
-    function getApostas() public view returns (address[] memory) {
-        return apostas;
-    }
-
-    function getJogadorPorId(address id) public view returns(string memory, address, uint256){
+    function getJogadorPorId(address id) public view returns(string memory nome, address carteira, uint256 apostas){
 	    return (jogadoresInfo[id].nome, jogadoresInfo[id].carteira, jogadoresInfo[id].apostas);
     }
 
@@ -109,7 +110,7 @@ contract Bolao {
     function limpar() private {
         for(uint i=0;i<jogadores.length;i++)
         {
-            jogadoresInfo[jogadores[i]].isValue = false;
+          jogadoresInfo[jogadores[i]].isValue = false;
         }
         jogadores = new address[](0);
         apostas = new address[](0);

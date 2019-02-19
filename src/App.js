@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-//import MenuApp from './components/MenuApp';
 import ValorAposta from './components/ValorAposta';
 import Apostar from './components/Apostar';
 import Ganhador from './components/Ganhador';
@@ -14,7 +13,6 @@ import {
 } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
-//import logo from './logo.svg';
 import walletImage from './images/wallet.svg';
 import './App.css';
 
@@ -38,11 +36,6 @@ class App extends Component {
   }
 
   onValorApostaChanged() {
-    /*this.setState({
-      valorAposta: pValorAposta
-    })*/
-    //console.log(this.state.valorAposta);
-    //console.log("voltou");
     this.loadHeader();
   }
 
@@ -54,13 +47,15 @@ class App extends Component {
     }, (error, event) => { //console.log(event);
     })
     .on('data', (event) => {
-        //console.log(event.returnValues); // same results as the optional callback above
         this.setState({premio: event.returnValues.premio, numApostas: event.returnValues.apostasTotal});
 
         var aJogs = this.state.jogadores;
         var novo = true;
         for (var i=0; i<aJogs.length; i++)
         {
+          console.log(event.returnValues);
+          console.log(aJogs[i].carteira);
+          console.log(event.returnValues.carteira);
           if(aJogs[i].carteira === event.returnValues.carteira)
           {
             novo = false;
@@ -110,7 +105,6 @@ class App extends Component {
       bolao.methods.getValorAposta().call({from: accounts[0]})
       .then((result) => {
         this.setState({valorAposta: web3.utils.fromWei(result, 'ether')});
-        //console.log("primeiro: "+this.state.valorAposta)
       });
 
       bolao.methods.getNumAposta().call({from: accounts[0]})
@@ -129,14 +123,13 @@ class App extends Component {
   renderJogadores(){
     if (this.state.jogadores !== undefined)
     {
-      //console.log(this.state.jogadores);
       var tablerows = [];
 
 
       var jogs = this.state.jogadores;
       for(var i=0; i<jogs.length; i++){
-        tablerows.push(<Table.Row>
-          <Table.Cell key={jogs[i].carteira}>
+        tablerows.push(<Table.Row key={jogs[i].carteira}>
+          <Table.Cell>
             <Image src={walletImage} size='mini' verticalAlign='middle' alt={jogs[i].carteira} title={jogs[i].carteira} />
             <span>{jogs[i].nome}</span>
           </Table.Cell>
@@ -151,7 +144,7 @@ class App extends Component {
         </Header>
         <Table sortable celled fixed>
           <Table.Header>
-          <Table.Row>
+          <Table.Row key='cabecalho'>
               <Table.HeaderCell>Nome do Jogador</Table.HeaderCell>
               <Table.HeaderCell textAlign='center' sorted='descending'>Número de Apostas</Table.HeaderCell>
             </Table.Row>
@@ -167,7 +160,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Grid columns={2} stackable padded>
+        <Grid columns='equal' stackable padded>
         <Grid.Row stretched>
           <Grid.Column>
               <Container>
@@ -178,7 +171,7 @@ class App extends Component {
                 <div>{bolao.options.address}</div>
               </Container>
           </Grid.Column>
-          <Grid.Column>
+          <Grid.Column key='apostas'>
             <Container>
               <Header as='h3' block>
                 <Icon name='money' />
@@ -187,7 +180,7 @@ class App extends Component {
               <div>{this.state.numApostas}</div>
             </Container>
           </Grid.Column>
-          <Grid.Column>
+          <Grid.Column key='premio'>
             <Container>
               <Header as='h3' block>
                 <Icon name='gift' />
@@ -196,14 +189,14 @@ class App extends Component {
               <div>{web3.utils.fromWei(this.state.premio, 'ether')} ETH</div>
             </Container>
           </Grid.Column>
-          <Grid.Column><ValorAposta gasPrice={this.state.gasPrice} onValorApostaChanged={this.onValorApostaChanged} /></Grid.Column>
+          <Grid.Column key='ganhador'><Ganhador ganhador={this.state.ganhador} gasPrice={this.state.gasPrice} /></Grid.Column>
         </Grid.Row>
         <Grid.Row>
-          <Grid.Column><Apostar gasPrice={this.state.gasPrice} /></Grid.Column>
-          <Grid.Column><Ganhador ganhador={this.state.ganhador} gasPrice={this.state.gasPrice} /></Grid.Column>
+          <Grid.Column key='apostar'><Apostar gasPrice={this.state.gasPrice} /></Grid.Column>
+          <Grid.Column key='valorAposta'><ValorAposta gasPrice={this.state.gasPrice} onValorApostaChanged={this.onValorApostaChanged} /></Grid.Column>
         </Grid.Row>
         <Grid.Row>
-          <Grid.Column>{this.renderJogadores()}</Grid.Column>
+          <Grid.Column key='jogadores'>{this.renderJogadores()}</Grid.Column>
         </Grid.Row>
         </Grid>
       </div>
