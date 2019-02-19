@@ -1,19 +1,21 @@
 import React, { Component } from 'react';
-import MenuApp from './components/MenuApp';
+//import MenuApp from './components/MenuApp';
 import ValorAposta from './components/ValorAposta';
 import Apostar from './components/Apostar';
 import Ganhador from './components/Ganhador';
-import Jogadores from './components/Jogadores';
 
 import {
   Grid,
   Container,
   Header,
-  Icon
+  Icon,
+  Table,
+  Image
 } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
 //import logo from './logo.svg';
+import walletImage from './images/wallet.svg';
 import './App.css';
 
 import bolao from './ethereum/Contrato';
@@ -27,7 +29,9 @@ class App extends Component {
       gasPrice: 100000000000,
       numApostas: '0',
       premio: '0',
-      blockNumber: 0
+      blockNumber: 0,
+      ganhador: '',
+      jogadores: []
     }
 
     this.onValorApostaChanged = this.onValorApostaChanged.bind(this);
@@ -50,13 +54,55 @@ class App extends Component {
     }, (error, event) => { //console.log(event);
     })
     .on('data', (event) => {
-        console.log(event.returnValues); // same results as the optional callback above
+        //console.log(event.returnValues); // same results as the optional callback above
         this.setState({premio: event.returnValues.premio, numApostas: event.returnValues.apostasTotal});
+
+        var aJogs = this.state.jogadores;
+        var novo = true;
+        for (var i=0; i<aJogs.length; i++)
+        {
+          if(aJogs[i].carteira === event.returnValues.carteira)
+          {
+            novo = false;
+            aJogs[i].apostas = event.returnValues.apostas;
+          }
+        }
+
+        if (novo) {
+          aJogs.push({nome: event.returnValues.nome, carteira: event.returnValues.carteira, apostas: event.returnValues.apostas});
+          this.setState({jogadores: aJogs});
+        }
+
     })
     .on('changed', (event) => {
         // remove event from local database
     })
     .on('error', console.error);
+
+    bolao.events.FimDeJogoEvent({
+        fromBlock: web3.eth.defaultBlock
+    }, (error, event) => {
+    })
+    .on('data', (event) => {
+      console.log(event.returnValues);
+        this.setState({ganhador: event.returnValues.ganhador});
+    });
+
+
+    web3.eth.getAccounts((err, accounts) => {
+      bolao.methods.getJogadores().call({from: accounts[0]})
+      .then((_jogadores) => {
+        for(var i in _jogadores) {
+          var aJogs=[];
+          bolao.methods.jogadoresInfo(_jogadores[i]).call({from: accounts[0]})
+          .then((_jogador) => {
+            aJogs = this.state.jogadores;
+            aJogs.push({nome: _jogador[0], carteira: _jogador[1], apostas: _jogador[2]});
+            this.setState({jogadores: aJogs});
+          });
+        }
+      });
+    });
   }
 
   loadHeader(){
@@ -80,11 +126,47 @@ class App extends Component {
     });
   }
 
+  renderJogadores(){
+    if (this.state.jogadores !== undefined)
+    {
+      //console.log(this.state.jogadores);
+      var tablerows = [];
+
+
+      var jogs = this.state.jogadores;
+      for(var i=0; i<jogs.length; i++){
+        tablerows.push(<Table.Row>
+          <Table.Cell key={jogs[i].carteira}>
+            <Image src={walletImage} size='mini' verticalAlign='middle' alt={jogs[i].carteira} title={jogs[i].carteira} />
+            <span>{jogs[i].nome}</span>
+          </Table.Cell>
+          <Table.Cell textAlign='center'>{jogs[i].apostas}</Table.Cell>
+        </Table.Row>);
+      }
+
+      return (<Container>
+        <Header as='h3' block>
+          <Icon name='trophy' />
+          <Header.Content>Jogadores</Header.Content>
+        </Header>
+        <Table sortable celled fixed>
+          <Table.Header>
+          <Table.Row>
+              <Table.HeaderCell>Nome do Jogador</Table.HeaderCell>
+              <Table.HeaderCell textAlign='center' sorted='descending'>Número de Apostas</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header><Table.Body>{tablerows}</Table.Body>
+        </Table>
+        </Container>);
+    }
+    else {
+      return(<Container></Container>);
+    }
+  }
+
   render() {
     return (
       <div className="App">
-        <MenuApp />
-        <br /><br /><br />
         <Grid columns={2} stackable padded>
         <Grid.Row stretched>
           <Grid.Column>
@@ -118,10 +200,10 @@ class App extends Component {
         </Grid.Row>
         <Grid.Row>
           <Grid.Column><Apostar gasPrice={this.state.gasPrice} /></Grid.Column>
-          <Grid.Column><Ganhador gasPrice={this.state.gasPrice} /></Grid.Column>
+          <Grid.Column><Ganhador ganhador={this.state.ganhador} gasPrice={this.state.gasPrice} /></Grid.Column>
         </Grid.Row>
         <Grid.Row>
-          <Grid.Column><Jogadores /></Grid.Column>
+          <Grid.Column>{this.renderJogadores()}</Grid.Column>
         </Grid.Row>
         </Grid>
       </div>

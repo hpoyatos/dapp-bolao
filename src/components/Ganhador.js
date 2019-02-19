@@ -16,8 +16,8 @@ class Ganhador extends Component {
     super(props);
     this.state = {
       gasPrice: this.props.gasPrice,
+      ganhador: this.props.ganhador,
       gerente: false,
-      ganhador: '',
       loading: false,
       fimDeJogo: false
     };
@@ -34,6 +34,10 @@ class Ganhador extends Component {
     });
   }
 
+  componentWillReceiveProps(props) {
+    this.setState({ganhador: this.props.ganhador});
+  }
+
   onSubmitGanhador = async event => {
     event.preventDefault();
     var that = this;
@@ -44,7 +48,8 @@ class Ganhador extends Component {
         gasPrice: that.state.gasPrice })
       .once('transactionHash', function(hash){ console.log("1: "+hash); })
       .once('confirmation', function(confNumber, receipt){
-        console.log("vencedor");
+        //console.log("vencedor");
+        that.setState({loading: false});
       })
       .on('error', function(error){
         that.setState({loading: false});
@@ -54,17 +59,23 @@ class Ganhador extends Component {
   }
 
   button() {
-    if (this.state.gerente) {
-      if (this.state.loading) {
-        return (<Button primary loading onClick = {this.onSubmitGanhador}> Escolher ganhador</Button>);
-      }
-      else {
-        if (!this.state.fimDeJogo)
-        {
-          return (<Button primary onClick = {this.onSubmitGanhador}> Escolher ganhador</Button>);
+    //console.log(this.state.ganhador);
+    if (this.state.ganhador !== '') {
+      return (<div>{this.state.ganhador}</div>);
+    }
+    else {
+      if (this.state.gerente) {
+        if (this.state.loading) {
+          return (<Button primary loading onClick = {this.onSubmitGanhador}> Escolher ganhador</Button>);
         }
         else {
-          return("<div>Fim de Jogo!</div>");
+          if (!this.state.fimDeJogo)
+          {
+            return (<Button primary onClick = {this.onSubmitGanhador}> Escolher ganhador</Button>);
+          }
+          else {
+            return("<div>Fim de Jogo!</div>");
+          }
         }
       }
     }
