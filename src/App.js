@@ -3,6 +3,7 @@ import MenuApp from './components/MenuApp';
 import ValorAposta from './components/ValorAposta';
 import Apostar from './components/Apostar';
 import Ganhador from './components/Ganhador';
+import Jogadores from './components/Jogadores';
 
 import {
   Grid,
@@ -25,7 +26,8 @@ class App extends Component {
       valorAposta: '0',
       gasPrice: 100000000000,
       numApostas: '0',
-      premio: '0'
+      premio: '0',
+      blockNumber: 0
     }
 
     this.onValorApostaChanged = this.onValorApostaChanged.bind(this);
@@ -42,6 +44,19 @@ class App extends Component {
 
   async componentDidMount() {
     this.loadHeader();
+
+    bolao.events.ApostaEvent({ // Using an array means OR: e.g. 20 or 23
+        fromBlock: web3.eth.defaultBlock
+    }, (error, event) => { //console.log(event);
+    })
+    .on('data', (event) => {
+        console.log(event.returnValues); // same results as the optional callback above
+        this.setState({premio: event.returnValues.premio, numApostas: event.returnValues.apostasTotal});
+    })
+    .on('changed', (event) => {
+        // remove event from local database
+    })
+    .on('error', console.error);
   }
 
   loadHeader(){
@@ -70,7 +85,7 @@ class App extends Component {
       <div className="App">
         <MenuApp />
         <br /><br /><br />
-        <Grid columns={4} stackable padded>
+        <Grid columns={2} stackable padded>
         <Grid.Row stretched>
           <Grid.Column>
               <Container>
@@ -104,6 +119,9 @@ class App extends Component {
         <Grid.Row>
           <Grid.Column><Apostar gasPrice={this.state.gasPrice} /></Grid.Column>
           <Grid.Column><Ganhador gasPrice={this.state.gasPrice} /></Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column><Jogadores /></Grid.Column>
         </Grid.Row>
         </Grid>
       </div>
