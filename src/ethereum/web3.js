@@ -15,10 +15,13 @@ if (typeof window.ethereum !== 'undefined') {
     //dispatch(setMetamaskState (MetamaskStatus.USER_DENIED_ACCESS))
   }
 }
+<<<<<<< HEAD
 //New
 else if (typeof Web3.givenProvider !== 'undefined') {
   web3js = new Web3(Web3.givenProvider);
 }
+=======
+>>>>>>> 3d216437a5468532fc54eb1e8d5dc8b4167c66b3
 // Legacy dapp browsers...
 else if (window.web3) {
   if (typeof window !== 'undefined' && typeof window.web3 !== 'undefined') {
