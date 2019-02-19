@@ -4,20 +4,14 @@ let web3js;
 
 // Modern dapp browsers...
 if (typeof window.ethereum !== 'undefined') {
-
-  if (typeof window.ethereum !== 'undefined') {
-    try {
-      // Request account access if needed
-      web3js = new Web3(window.ethereum);
-      window.ethereum.enable()
-      .then( (addresses) => {
-
-        //dispatch(setMetamaskState (MetamaskStatus.UNLOCKED))
-        //dispatch(setMetamaskAddresses(addresses))
+  try {
+  // Request account access if needed
+    web3js = new Web3(window.ethereum);
+    window.ethereum.enable()
+    .then( (addresses) => {
       });
-    } catch (error) {
-      //dispatch(setMetamaskState (MetamaskStatus.USER_DENIED_ACCESS))
-    }
+  } catch (error) {
+    //dispatch(setMetamaskState (MetamaskStatus.USER_DENIED_ACCESS))
   }
 }
 // Legacy dapp browsers...
