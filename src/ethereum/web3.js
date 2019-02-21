@@ -3,6 +3,7 @@ import Web3 from 'web3';
 
 let web3js;
 
+//console.log(Web3.givenProvider);
 // Modern dapp browsers...
 if (typeof window.ethereum !== 'undefined') {
   try {
@@ -10,12 +11,27 @@ if (typeof window.ethereum !== 'undefined') {
     web3js = new Web3(window.ethereum);
     window.ethereum.enable()
     .then( (addresses) => {
+
       });
   } catch (error) {
     //dispatch(setMetamaskState (MetamaskStatus.USER_DENIED_ACCESS))
   }
 }
-//New
+
+/*
+window.ethereum.on('accountsChanged', function (accounts) {
+  // Time to reload your interface with accounts[0]!
+})
+
+window.ethereum.on('networkChanged', function (netId) {
+  // Time to reload your interface with netId
+})
+you can also prevent metamask from automatically reloading web page
+
+window.onbeforeunload = function() {
+  return "Prevent reload"
+}
+
 else if (typeof Web3.givenProvider !== 'undefined') {
   web3js = new Web3(Web3.givenProvider);
 }
@@ -32,5 +48,5 @@ else if (window.web3) {
     web3js = new Web3(provider);
   }
 }
-
+*/
 export default web3js;

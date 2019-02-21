@@ -10,7 +10,9 @@ import {
 import 'semantic-ui-css/semantic.min.css';
 
 import bolao from '../ethereum/Contrato';
-import web3 from '../ethereum/web3';
+import web3js from '../ethereum/web3';
+import Web3 from 'web3';
+import {Eth} from 'web3-eth';
 
 class ValorAposta extends Component {
   constructor(props) {
@@ -28,10 +30,12 @@ class ValorAposta extends Component {
   }
 
   async componentDidMount() {
-    web3.eth.getAccounts((err, accounts) => {
+    const eth = new Eth(Web3.givenProvider);
+
+    eth.getAccounts((err, accounts) => {
       bolao.methods.getValorAposta().call({from: accounts[0]})
       .then((result) => {
-        this.setState({valorAposta: web3.utils.fromWei(result, 'ether')});
+        this.setState({valorAposta: web3js.utils.fromWei(result, 'ether')});
       });
 
       bolao.methods.getGerente().call({from: accounts[0]})
@@ -55,10 +59,12 @@ class ValorAposta extends Component {
 
   onSubmitValorAposta = async event => {
     event.preventDefault();
+    const eth = new Eth(Web3.givenProvider);
+
     var that = this;
-    web3.eth.getAccounts((err, accounts) => {
+    eth.getAccounts((err, accounts) => {
       this.setState({loading: true});
-      bolao.methods.setValorAposta(web3.utils.toWei(that.state.valorAposta, 'ether')).send({
+      bolao.methods.setValorAposta(web3js.utils.toWei(that.state.valorAposta, 'ether')).send({
         from: accounts[0],
         gasPrice: that.state.gasPrice })
       .once('transactionHash', function(hash){ console.log("1: "+hash); })

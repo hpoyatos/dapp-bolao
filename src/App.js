@@ -17,7 +17,9 @@ import walletImage from './images/wallet.svg';
 import './App.css';
 
 import bolao from './ethereum/Contrato';
-import web3 from './ethereum/web3';
+import web3js from './ethereum/web3';
+import Web3 from 'web3';
+import {Eth} from 'web3-eth';
 
 class App extends Component {
   constructor(props) {
@@ -41,9 +43,10 @@ class App extends Component {
 
   async componentDidMount() {
     this.loadHeader();
+    const eth = new Eth(Web3.givenProvider);
 
     bolao.events.ApostaEvent({ // Using an array means OR: e.g. 20 or 23
-        fromBlock: web3.eth.defaultBlock
+        fromBlock: eth.defaultBlock
     }, (error, event) => { //console.log(event);
     })
     .on('data', (event) => {
@@ -75,7 +78,7 @@ class App extends Component {
     .on('error', console.error);
 
     bolao.events.FimDeJogoEvent({
-        fromBlock: web3.eth.defaultBlock
+        fromBlock: eth.defaultBlock
     }, (error, event) => {
     })
     .on('data', (event) => {
@@ -83,8 +86,7 @@ class App extends Component {
         this.setState({ganhador: event.returnValues.ganhador});
     });
 
-
-    web3.eth.getAccounts((err, accounts) => {
+    eth.getAccounts((err, accounts) => {
       bolao.methods.getJogadores().call({from: accounts[0]})
       .then((_jogadores) => {
         for(var i in _jogadores) {
@@ -101,10 +103,11 @@ class App extends Component {
   }
 
   loadHeader(){
-    web3.eth.getAccounts((err, accounts) => {
+    const eth = new Eth(Web3.givenProvider);
+    eth.getAccounts((err, accounts) => {
       bolao.methods.getValorAposta().call({from: accounts[0]})
       .then((result) => {
-        this.setState({valorAposta: web3.utils.fromWei(result, 'ether')});
+        this.setState({valorAposta: web3js.utils.fromWei(result, 'ether')});
       });
 
       bolao.methods.getNumAposta().call({from: accounts[0]})
@@ -186,7 +189,7 @@ class App extends Component {
                 <Icon name='gift' />
                 <Header.Content>Prêmio</Header.Content>
               </Header>
-              <div>{web3.utils.fromWei(this.state.premio, 'ether')} ETH</div>
+              <div>{web3js.utils.fromWei(this.state.premio, 'ether')} ETH</div>
             </Container>
           </Grid.Column>
           <Grid.Column key='ganhador'><Ganhador ganhador={this.state.ganhador} gasPrice={this.state.gasPrice} /></Grid.Column>

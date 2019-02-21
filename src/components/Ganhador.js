@@ -9,7 +9,9 @@ import {
 import 'semantic-ui-css/semantic.min.css';
 
 import bolao from '../ethereum/Contrato';
-import web3 from '../ethereum/web3';
+import web3js from '../ethereum/web3';
+import Web3 from 'web3';
+import {Eth} from 'web3-eth';
 
 class Ganhador extends Component {
   constructor(props) {
@@ -24,7 +26,9 @@ class Ganhador extends Component {
   }
 
   async componentDidMount() {
-    web3.eth.getAccounts((err, accounts) => {
+    const eth = new Eth(Web3.givenProvider);
+
+    eth.getAccounts((err, accounts) => {
       bolao.methods.getGerente().call({from: accounts[0]})
       .then((result) => {
         if (accounts[0] === result){
@@ -41,7 +45,8 @@ class Ganhador extends Component {
   onSubmitGanhador = async event => {
     event.preventDefault();
     var that = this;
-    web3.eth.getAccounts((err, accounts) => {
+    const eth = new Eth(Web3.givenProvider);
+    eth.getAccounts((err, accounts) => {
       this.setState({loading: true});
       bolao.methods.escolherGanhador().send({
         from: accounts[0],
