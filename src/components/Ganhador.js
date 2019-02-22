@@ -9,9 +9,9 @@ import {
 import 'semantic-ui-css/semantic.min.css';
 
 import bolao from '../ethereum/Contrato';
-import web3js from '../ethereum/web3';
-import Web3 from 'web3';
-import {Eth} from 'web3-eth';
+//import web3js from '../ethereum/web3';
+//import Web3 from 'web3';
+//import {Eth} from 'web3-eth';
 
 class Ganhador extends Component {
   constructor(props) {
@@ -21,14 +21,15 @@ class Ganhador extends Component {
       ganhador: this.props.ganhador,
       gerente: false,
       loading: false,
-      fimDeJogo: false
+      fimDeJogo: false,
+      web3: this.props.web3
     };
   }
 
   async componentDidMount() {
-    const eth = new Eth(Web3.givenProvider);
+    //const eth = new Eth(Web3.givenProvider);
 
-    eth.getAccounts((err, accounts) => {
+    this.state.web3.eth.getAccounts((err, accounts) => {
       bolao.methods.getGerente().call({from: accounts[0]})
       .then((result) => {
         if (accounts[0] === result){
@@ -39,14 +40,14 @@ class Ganhador extends Component {
   }
 
   componentWillReceiveProps(props) {
-    this.setState({ganhador: this.props.ganhador});
+    this.setState({ganhador: props.ganhador});
   }
 
   onSubmitGanhador = async event => {
     event.preventDefault();
     var that = this;
-    const eth = new Eth(Web3.givenProvider);
-    eth.getAccounts((err, accounts) => {
+    //const eth = new Eth(Web3.givenProvider);
+    this.state.web3.eth.getAccounts((err, accounts) => {
       this.setState({loading: true});
       bolao.methods.escolherGanhador().send({
         from: accounts[0],
@@ -64,8 +65,7 @@ class Ganhador extends Component {
   }
 
   button() {
-    //console.log(this.state.ganhador);
-    if (this.state.ganhador !== '') {
+    if (this.state.ganhador !== null) {
       return (<div>{this.state.ganhador}</div>);
     }
     else {

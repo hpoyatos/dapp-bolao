@@ -10,9 +10,9 @@ import {
 import 'semantic-ui-css/semantic.min.css';
 
 import bolao from '../ethereum/Contrato';
-import web3js from '../ethereum/web3';
-import Web3 from 'web3';
-import {Eth} from 'web3-eth';
+//import web3js from '../ethereum/web3';
+//import Web3 from 'web3';
+//import {Eth} from 'web3-eth';
 
 class Apostar extends Component {
   constructor(props) {
@@ -22,14 +22,15 @@ class Apostar extends Component {
       jaApostou: false,
       loading: false,
       nome: '',
-      liberado: false
+      liberado: false,
+      web3: this.props.web3
     };
   }
 
   async componentDidMount() {
-    const eth = new Eth(Web3.givenProvider);
+    //const eth = new Eth(Web3.givenProvider);
 
-    eth.getAccounts((err, accounts) => {
+    this.state.web3.eth.getAccounts((err, accounts) => {
       if (accounts[0] !== undefined)
       {
         this.setState({liberado: true});
@@ -62,9 +63,9 @@ class Apostar extends Component {
   onSubmitAposta = async event => {
     event.preventDefault();
     var that = this;
-    const eth = new Eth(Web3.givenProvider);
+    //const eth = new Eth(Web3.givenProvider);
 
-    eth.getAccounts((err, accounts) => {
+    this.state.web3.eth.getAccounts((err, accounts) => {
       this.setState({loading: true});
       bolao.methods.entrar(that.state.nome).send({
         from: accounts[0],
